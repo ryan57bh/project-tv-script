@@ -27,17 +27,18 @@ class AssertTest(object):
     def test(self, assert_condition, assert_message):
         assert assert_condition, assert_message + '\n\nUnit Test Function Parameters\n' + self.assert_param_message
 
-
+        
+        
 def test_create_lookup_tables(create_lookup_tables):
     test_text = '''
-        Moe_Szyslak Moe's Tavern Where the elite meet to drink
-        Bart_Simpson Eh yeah hello is Mike there Last name Rotch
-        Moe_Szyslak Hold on I'll check Mike Rotch Mike Rotch Hey has anybody seen Mike Rotch lately
-        Moe_Szyslak Listen you little puke One of these days I'm gonna catch you and I'm gonna carve my name on your back with an ice pick
-        Moe_Szyslak Whats the matter Homer You're not your normal effervescent self
-        Homer_Simpson I got my problems Moe Give me another one
-        Moe_Szyslak Homer hey you should not drink to forget your problems
-        Barney_Gumble Yeah you should only drink to enhance your social skills'''
+    Moe_Szyslak Moe's Tavern Where the elite meet to drink
+    Bart_Simpson Eh yeah hello is Mike there Last name Rotch
+    Moe_Szyslak Hold on I'll check Mike Rotch Mike Rotch Hey has anybody seen Mike Rotch lately
+    Moe_Szyslak Listen you little puke One of these days I'm gonna catch you and I'm gonna carve my name on your back  with an ice pick
+    Moe_Szyslak Whats the matter Homer You're not your normal effervescent self
+    Homer_Simpson I got my problems Moe Give me another one
+    Moe_Szyslak Homer hey you should not drink to forget your problems
+    Barney_Gumble Yeah you should only drink to enhance your social skills'''
     
     test_text = test_text.lower()
     test_text = test_text.split()
@@ -54,18 +55,18 @@ def test_create_lookup_tables(create_lookup_tables):
     assert len(vocab_to_int) == len(int_to_vocab),\
         'Length of vocab_to_int and int_to_vocab don\'t match. ' \
         'vocab_to_int is length {}. int_to_vocab is length {}'.format(len(vocab_to_int), len(int_to_vocab))
-
+    
     # Make sure the dicts have the same words
     vocab_to_int_word_set = set(vocab_to_int.keys())
     int_to_vocab_word_set = set(int_to_vocab.values())
-
+    
     assert not (vocab_to_int_word_set - int_to_vocab_word_set),\
-    'vocab_to_int and int_to_vocab don\'t have the same words.' \
+        'vocab_to_int and int_to_vocab don\'t have the same words.' \
         '{} found in vocab_to_int, but not in int_to_vocab'.format(vocab_to_int_word_set - int_to_vocab_word_set)
     assert not (int_to_vocab_word_set - vocab_to_int_word_set),\
         'vocab_to_int and int_to_vocab don\'t have the same words.' \
         '{} found in int_to_vocab, but not in vocab_to_int'.format(int_to_vocab_word_set - vocab_to_int_word_set)
-
+    
     # Make sure the dicts have the same word ids
     vocab_to_int_word_id_set = set(vocab_to_int.values())
     int_to_vocab_word_id_set = set(int_to_vocab.keys())
@@ -76,21 +77,19 @@ def test_create_lookup_tables(create_lookup_tables):
     assert not (int_to_vocab_word_id_set - vocab_to_int_word_id_set),\
         'vocab_to_int and int_to_vocab don\'t contain the same word ids.' \
         '{} found in int_to_vocab, but not in vocab_to_int'.format(int_to_vocab_word_id_set - vocab_to_int_word_id_set)
-
-    # Make sure the dicts make the same lookup
+    
+    #Make sure the dicts make the same lookup
     missmatches = [(word, id, id, int_to_vocab[id]) for word, id in vocab_to_int.items() if int_to_vocab[id] != word]
     
     assert not missmatches,\
-        'Found {} missmatche(s). First missmatch: vocab_to_int[{}] = {} and int_to_vocab[{}] = {}'.format(
-                                                                                                          len(missmatches),
+        'Found {} missmatche(s). First missmatch: vocab_to_int[{}] = {} and int_to_vocab[{}] = {}'.format(len(missmatches),
                                                                                                           *missmatches[0])
-    
     assert len(vocab_to_int) > len(set(test_text))/2,\
         'The length of vocab seems too small.  Found a length of {}'.format(len(vocab_to_int))
     
     _print_success_message()
-
-
+    
+    
 def test_tokenize(token_lookup):
     symbols = set(['.', ',', '"', ';', '!', '?', '(', ')', '-', '\n'])
     token_dict = token_lookup()
@@ -108,13 +107,13 @@ def test_tokenize(token_lookup):
     assert not unknown_symbols, \
         'Unknown symbols: {}'.format(unknown_symbols)
 
-    # Check values type
+# Check values type
     bad_value_type = [type(val) for val in token_dict.values() if not isinstance(val, str)]
     
     assert not bad_value_type,\
         'Found token as {} type.'.format(bad_value_type[0])
 
-    # Check for spaces
+# Check for spaces
     key_has_spaces = [k for k in token_dict.keys() if ' ' in k]
     val_has_spaces = [val for val in token_dict.values() if ' ' in val]
     
@@ -131,72 +130,8 @@ def test_tokenize(token_lookup):
                 symbol_val = (symbol, val)
 
     assert not symbol_val,\
-      'Don\'t use a symbol that will be replaced in your tokens. Found the symbol {} in value {}'.format(*symbol_val)
+    'Don\'t use a symbol that will be replaced in your tokens. Found the symbol {} in value {}'.format(*symbol_val)
     
-    _print_success_message()
-
-
-def test_batch_data(batch_data):
-    text_size = 22
-    sequence_length = 3
-    batch_size = 4
-    int_text = np.arange(text_size).tolist()
-    feature_batches_flatten = np.array(
-                                       [int_text[i:i + sequence_length] for i in range(text_size - sequence_length)]).flatten()
-                                       label_batches_flatten = np.array(int_text[sequence_length:])
-                                       
-                                       assert_test = AssertTest({'Input Text': int_text, 'Sequence Length': sequence_length, 'Batch                                        Size': batch_size})
-                                       
-                                       data_loader = batch_data(int_text, sequence_length, batch_size)
-                                       assert_condition = type(data_loader) == torch.utils.data.DataLoader
-                                       assert_message = 'Wront type returned. Expected type {}, got type                  {}'.format(torch.utils.data.DataLoader, type(data_loader))
-                                       assert_test.test(assert_condition, assert_message)
-                                       
-                                       data_batches = list(data_loader)
-                                       correct_n_batches = int(text_size / batch_size)
-                                       assert_condition = len(data_batches) == correct_n_batches
-                                       assert_message = 'Number of batches is incorrect. It should be {}, found     {}'.format(correct_n_batches,
-                                                                                                                           len(data_batches))
-                                       assert_test.test(assert_condition, assert_message)
-                                       
-                                       batch_shapes = [len(batch) for batch in data_batches]
-                                       assert_condition = set(batch_shapes) == {2}
-                                       assert_message = 'Each batch should have features and a label (2). Found the following lengths in batches: {}'.format(
-                                                                                                                                                                             set(batch_shapes))
-                                       assert_test.test(assert_condition, assert_message)
-                                       
-                                       feature_tensor_shapes = [(tuple(batch[0].size())) for batch in data_batches]
-                                       assert_condition = set(feature_tensor_shapes[:-1]) == {(4, 3)}
-                                       assert_message = 'The first {} batches for these parameters should have features of shape (4,3). Found the following shapes: {}'.format(
-                                                                                                                                                                               correct_n_batches - 1, set(feature_tensor_shapes[:-1]))
-                                       assert_test.test(assert_condition, assert_message)
-                                       
-                                       assert_condition = feature_tensor_shapes[-1] == (3, 3)
-                                       assert_message = 'The last batch for these parameters should have a feature with shape of (3,3). Found a shape of {}'.format(
-                                                                                                                                                                    feature_tensor_shapes[-1])
-                                       assert_test.test(assert_condition, assert_message)
-                                       
-                                       label_tensor_shapes = [(tuple(batch[1].size())) for batch in data_batches]
-                                       assert_condition = set(label_tensor_shapes[:-1]) == {(4,)}
-                                       assert_message = 'The first {} batches for these parameters should have a label of shape  (4,3)'.format(
-                                                                                                                                              correct_n_batches - 1)
-                                       assert_test.test(assert_condition, assert_message)
-                                       
-                                       assert_condition = label_tensor_shapes[-1] == (3,)
-                                       assert_message = 'The last batch for these parameters should have a label with shape (3,).  Found a shape of {}'.format(
-                                                                                                                                                              label_tensor_shapes[-1])
-                                       assert_test.test(assert_condition, assert_message)
-                                       
-                                       feature_tensors = np.concatenate([batch[0].view(-1) for batch in data_batches])
-                                       assert_condition = (feature_tensors == feature_batches_flatten).all()
-                                       assert_message = 'Wrong values for features. Output:\n{}'.format(data_batches)
-                                       assert_test.test(assert_condition, assert_message)
-                                       
-                                       label_tensors = np.concatenate([batch[1].view(-1) for batch in data_batches])
-                                       assert_condition = (label_tensors == label_batches_flatten).all()
-                                       assert_message = 'Wrong values for labels. Output:\n{}'.format(data_batches)
-                                       assert_test.test(assert_condition, assert_message)
-                                       
     _print_success_message()
 
 
@@ -235,7 +170,7 @@ def test_rnn(RNN, train_on_gpu):
                              'Sequence Length': sequence_length,
                              'Input': b})
 
-     # initialization
+# initialization
     correct_hidden_size = (n_layers, batch_size, hidden_dim)
     assert_condition = hidden[0].size() == correct_hidden_size
     assert_message = 'Wrong hidden state size. Expected type {}. Got type {}'.format(correct_hidden_size, hidden[0].size())
@@ -253,8 +188,8 @@ def test_rnn(RNN, train_on_gpu):
     assert_test.test(assert_condition, assert_message)
     
     _print_success_message()
-
-
+    
+    
 def test_forward_back_prop(RNN, forward_back_prop, train_on_gpu):
     batch_size = 200
     input_size = 20
@@ -276,7 +211,7 @@ def test_forward_back_prop(RNN, forward_back_prop, train_on_gpu):
     mock_criterion = MagicMock(wraps=torch.nn.CrossEntropyLoss())
     
     with patch.object(torch.autograd, 'backward', wraps=torch.autograd.backward) as mock_autograd_backward:
-    inp = torch.FloatTensor(np.random.rand(batch_size, input_size))
+        inp = torch.FloatTensor(np.random.rand(batch_size, input_size))
         target = torch.LongTensor(np.random.randint(output_size, size=batch_size))
         
         hidden = rnn.init_hidden(batch_size)
